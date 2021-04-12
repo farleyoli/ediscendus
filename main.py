@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import ImageTk, Image
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -10,7 +11,7 @@ class Application(tk.Frame):
     def create_widgets(self):
         self.hi_there = tk.Button(self)
         self.hi_there["text"] = "Hello World\n(click me)"
-        self.hi_there["command"] = self.say_hi
+        self.hi_there["command"] = self.put_image
         self.hi_there.pack(side="top")
 
         self.quit = tk.Button(self, text="QUIT", fg="red",
@@ -19,6 +20,12 @@ class Application(tk.Frame):
 
     def say_hi(self):
         print("hi there, everyone!")
+
+    def put_image(self, path = "test.png"):
+        image = ImageTk.PhotoImage(Image.open(path))
+        label = tk.Label(image=image)
+        label.image = image
+        label.pack()
 
 root = tk.Tk()
 app = Application(master=root)
