@@ -6,35 +6,55 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.pack()
+        #self.pack()
         self.curr_img_path = "test.jpeg"
+        self.zoom_rate = 0.9
         self.create_widgets()
 
     def create_widgets(self):
+        zoom_frame = Frame(self.master)
+        zoom_out_button = Button(zoom_frame, text="Zoom Out", command=self.zoom_out_image)
+        zoom_in_button = Button(zoom_frame, text="Zoom In", command=self.zoom_in_image)
+        zoom_out_button.grid(row=0, column=0)
+        zoom_in_button.grid(row=0, column=1)
+        zoom_frame.pack()
         self.put_image()
 
 
-    def put_image(self, zoom_rate = None):
-        raw_image = self.get_raw_image(0.7)
+    def put_image(self):
+        raw_image = self.get_raw_image()
         self.image = ImageTk.PhotoImage(raw_image)
 
         self.canvas = Canvas(self.master, bg="blue")
         self.canvas.pack(expand='true', fill='both')
+        #screen_width = root.winfo_screenwidth()
+        #screen_height = root.winfo_screenheight()
+        #self.canvas.grid(row = 0, column = 0, columnspan=3, ipadx=screen_width, ipady=20)
         self.canvas.create_image(0, 0, anchor=NW, image=self.image)
 
         self.bind_keys()
 
-    def get_raw_image(self, zoom_rate):
-        screen_width = root.winfo_screenwidth()
-        screen_height = root.winfo_screenheight()
+    def zoom_out_image(self):
+        if self.zoom_rate >= 0.3:
+            self.zoom_rate -= 0.1
+        self.canvas.pack_forget()
+        self.put_image()
+
+    def zoom_in_image(self):
+        if self.zoom_rate <= 0.9:
+            self.zoom_rate += 0.1
+        self.canvas.pack_forget()
+        self.put_image()
+
+    def get_raw_image(self):
         raw_image = Image.open(self.curr_img_path)
 
         w = raw_image.width
         h = raw_image.height
 
-        if zoom_rate:
-            w *= zoom_rate
-            h *= zoom_rate
+        if self.zoom_rate:
+            w *= self.zoom_rate
+            h *= self.zoom_rate
             w, h = int(w), int(h)
 
         raw_image = ImageOps.fit(raw_image, (w, h))
