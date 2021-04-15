@@ -3,6 +3,7 @@ import card_utils
 from tkinter import *
 from PIL import ImageTk, Image, ImageOps
 from collections import defaultdict
+from tkinter import simpledialog
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -95,14 +96,21 @@ class Application(tk.Frame):
         self.canvas.bind("<Shift-K>",   lambda event: self.zoom_in_image())
         self.canvas.bind("<Shift-J>",   lambda event: self.zoom_out_image())
         self.canvas.bind("<Control-Button-1>", lambda event: card_utils.add_card(self, self.page_number, self.get_img_coordinates(event)[1]))
+        self.canvas.bind("<Shift-Button-1>", lambda event: self.create_question_card(self.get_img_coordinates(event)[1]))
         #self.canvas.bind('<Motion>', lambda event: self.print_img_coordinates(event))
         self.canvas.focus_set()
+
+    def create_question_card(self, y):
+        question = simpledialog.askstring("", "Question:")
+        card_utils.add_card(self, self.page_number, y, question)
+        print(self.cards)
+
 
     def insert_highlight(self, x0, y0, x1, y1):
         self.canvas.create_rectangle(x0, y0, x1, y1, fill="black", stipple="gray25")
 
     def render_highlights(self):
-        for y0, y1 in self.cards[self.page_number]:
+        for y0, y1, _, _ in self.cards[self.page_number]:
             self.insert_highlight(0, int(y0 * self.zoom_rate),
                                   self.img_x, int(y1 * self.zoom_rate))
         #print(self.cards)
