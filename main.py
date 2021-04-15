@@ -58,6 +58,12 @@ class Application(tk.Frame):
         raw_image = ImageOps.fit(raw_image, (w, h))
         return raw_image
 
+    def print_img_coordinates(self, event):
+        canvas = event.widget
+        x = int(canvas.canvasx(event.x) * (1/self.zoom_rate))
+        y = int(canvas.canvasy(event.y) * (1/self.zoom_rate))
+        print(x, y)
+
     def bind_keys(self):
         self.canvas.bind("<Left>",      lambda event: self.canvas.xview_scroll(-1, "units"))
         self.canvas.bind("<h>",         lambda event: self.canvas.xview_scroll(-1, "units"))
@@ -73,6 +79,7 @@ class Application(tk.Frame):
         self.canvas.focus_set()
         self.canvas.configure(xscrollincrement='20')
         self.canvas.configure(yscrollincrement='40')
+        self.canvas.bind('<Motion>', self.print_img_coordinates)
 
 
 root = tk.Tk()
