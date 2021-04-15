@@ -6,9 +6,11 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        #self.pack()
         self.curr_img_path = "test.jpeg"
         self.zoom_rate = 0.9
+        self.img_x = 0
+        self.img_y = 0
+        self.cards = []
         self.create_widgets()
 
     def create_widgets(self):
@@ -54,7 +56,7 @@ class Application(tk.Frame):
             w *= self.zoom_rate
             h *= self.zoom_rate
             w, h = int(w), int(h)
-
+        self.img_x, self.img_y = w, h
         raw_image = ImageOps.fit(raw_image, (w, h))
         return raw_image
 
@@ -76,10 +78,15 @@ class Application(tk.Frame):
         self.canvas.bind("<1>",         lambda event: self.canvas.focus_set())
         self.canvas.bind("<Shift-K>",   lambda event: self.zoom_in_image())
         self.canvas.bind("<Shift-J>",   lambda event: self.zoom_out_image())
+        self.canvas.bind("<Shift-S>",   lambda event: self.insert_highlight(0, 0, self.img_x, self.img_y))
         self.canvas.focus_set()
         self.canvas.configure(xscrollincrement='20')
         self.canvas.configure(yscrollincrement='40')
         self.canvas.bind('<Motion>', self.print_img_coordinates)
+
+    def insert_highlight(self, x0, y0, x1, y1):
+        self.canvas.create_rectangle(x0, y0, x1, y1, fill="black", stipple="gray25")
+
 
 
 root = tk.Tk()
