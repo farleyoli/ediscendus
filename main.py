@@ -1,6 +1,8 @@
 import tkinter as tk
+import card_utils
 from tkinter import *
 from PIL import ImageTk, Image, ImageOps
+from collections import defaultdict
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -10,8 +12,10 @@ class Application(tk.Frame):
         self.zoom_rate = 0.9
         self.img_x = 0
         self.img_y = 0
-        self.cards = []
+        self.cards = defaultdict(list)
+        self.page_number = 1
         self.create_widgets()
+        self.bind_keys()
 
     def create_widgets(self):
         zoom_frame = Frame(self.master)
@@ -28,23 +32,26 @@ class Application(tk.Frame):
 
         self.canvas = Canvas(self.master, bg="blue")
         self.canvas.pack(expand='true', fill='both')
-        #screen_width = root.winfo_screenwidth()
-        #screen_height = root.winfo_screenheight()
         self.canvas.create_image(0, 0, anchor=NW, image=self.image)
 
+        self.canvas.configure(xscrollincrement='10')
+        self.canvas.configure(yscrollincrement='40')
         self.bind_keys()
+        self.render_highlights()
+        #screen_width = root.winfo_screenwidth()
+        #screen_height = root.winfo_screenheight()
 
     def zoom_out_image(self):
         if self.zoom_rate >= 0.5:
             self.zoom_rate -= 0.1
-        self.canvas.pack_forget()
-        self.put_image()
+            self.canvas.pack_forget()
+            self.put_image()
 
     def zoom_in_image(self):
         if self.zoom_rate <= 1.5:
             self.zoom_rate += 0.1
-        self.canvas.pack_forget()
-        self.put_image()
+            self.canvas.pack_forget()
+            self.put_image()
 
     def get_raw_image(self):
         raw_image = Image.open(self.curr_img_path)
@@ -60,11 +67,13 @@ class Application(tk.Frame):
         raw_image = ImageOps.fit(raw_image, (w, h))
         return raw_image
 
+    def get_img_coordinates(self, event):
+        x = int(self.canvas.canvasx(event.x) * (1/self.zoom_rate))
+        y = int(self.canvas.canvasy(event.y) * (1/self.zoom_rate))
+        return (x, y)
+
     def print_img_coordinates(self, event):
-        canvas = event.widget
-        x = int(canvas.canvasx(event.x) * (1/self.zoom_rate))
-        y = int(canvas.canvasy(event.y) * (1/self.zoom_rate))
-        print(x, y)
+        print(self.get_img_coordinates(event))
 
     def bind_keys(self):
         self.canvas.bind("<Left>",      lambda event: self.canvas.xview_scroll(-1, "units"))
@@ -78,16 +87,18 @@ class Application(tk.Frame):
         self.canvas.bind("<1>",         lambda event: self.canvas.focus_set())
         self.canvas.bind("<Shift-K>",   lambda event: self.zoom_in_image())
         self.canvas.bind("<Shift-J>",   lambda event: self.zoom_out_image())
-        self.canvas.bind("<Shift-S>",   lambda event: self.insert_highlight(0, 0, self.img_x, self.img_y))
+        self.canvas.bind("<Control-Button-1>", lambda event: card_utils.add_card(self, self.page_number, self.get_img_coordinates(event)[1]))
+        #self.canvas.bind('<Motion>', lambda event: self.print_img_coordinates(event))
         self.canvas.focus_set()
-        self.canvas.configure(xscrollincrement='20')
-        self.canvas.configure(yscrollincrement='40')
-        self.canvas.bind('<Motion>', self.print_img_coordinates)
 
     def insert_highlight(self, x0, y0, x1, y1):
         self.canvas.create_rectangle(x0, y0, x1, y1, fill="black", stipple="gray25")
 
-
+    def render_highlights(self):
+        for y0, y1 in self.cards[self.page_number]:
+            self.insert_highlight(0, int(y0 * self.zoom_rate),
+                                  self.img_x, int(y1 * self.zoom_rate))
+        #print(self.cards)
 
 root = tk.Tk()
 app = Application(master=root)
