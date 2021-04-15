@@ -20,7 +20,6 @@ class Application(tk.Frame):
         zoom_frame.pack()
         self.put_image()
 
-
     def put_image(self):
         raw_image = self.get_raw_image()
         self.image = ImageTk.PhotoImage(raw_image)
@@ -29,19 +28,18 @@ class Application(tk.Frame):
         self.canvas.pack(expand='true', fill='both')
         #screen_width = root.winfo_screenwidth()
         #screen_height = root.winfo_screenheight()
-        #self.canvas.grid(row = 0, column = 0, columnspan=3, ipadx=screen_width, ipady=20)
         self.canvas.create_image(0, 0, anchor=NW, image=self.image)
 
         self.bind_keys()
 
     def zoom_out_image(self):
-        if self.zoom_rate >= 0.3:
+        if self.zoom_rate >= 0.5:
             self.zoom_rate -= 0.1
         self.canvas.pack_forget()
         self.put_image()
 
     def zoom_in_image(self):
-        if self.zoom_rate <= 0.9:
+        if self.zoom_rate <= 1.5:
             self.zoom_rate += 0.1
         self.canvas.pack_forget()
         self.put_image()
@@ -61,17 +59,20 @@ class Application(tk.Frame):
         return raw_image
 
     def bind_keys(self):
-        self.canvas.bind("<Left>",  lambda event: self.canvas.xview_scroll(-1, "units"))
-        self.canvas.bind("<h>",  lambda event: self.canvas.xview_scroll(-1, "units"))
-        self.canvas.bind("<Right>", lambda event: self.canvas.xview_scroll( 1, "units"))
-        self.canvas.bind("<l>", lambda event: self.canvas.xview_scroll( 1, "units"))
-        self.canvas.bind("<Up>",    lambda event: self.canvas.yview_scroll(-1, "units"))
-        self.canvas.bind("<k>",    lambda event: self.canvas.yview_scroll(-1, "units"))
-        self.canvas.bind("<Down>",  lambda event: self.canvas.yview_scroll( 1, "units"))
-        self.canvas.bind("<j>",  lambda event: self.canvas.yview_scroll( 1, "units"))
-        self.canvas.bind("<1>", lambda event: self.canvas.focus_set())
+        self.canvas.bind("<Left>",      lambda event: self.canvas.xview_scroll(-1, "units"))
+        self.canvas.bind("<h>",         lambda event: self.canvas.xview_scroll(-1, "units"))
+        self.canvas.bind("<Right>",     lambda event: self.canvas.xview_scroll( 1, "units"))
+        self.canvas.bind("<l>",         lambda event: self.canvas.xview_scroll( 1, "units"))
+        self.canvas.bind("<Up>",        lambda event: self.canvas.yview_scroll(-1, "units"))
+        self.canvas.bind("<k>",         lambda event: self.canvas.yview_scroll(-1, "units"))
+        self.canvas.bind("<Down>",      lambda event: self.canvas.yview_scroll( 1, "units"))
+        self.canvas.bind("<j>",         lambda event: self.canvas.yview_scroll( 1, "units"))
+        self.canvas.bind("<1>",         lambda event: self.canvas.focus_set())
+        self.canvas.bind("<Shift-K>",   lambda event: self.zoom_in_image())
+        self.canvas.bind("<Shift-J>",   lambda event: self.zoom_out_image())
         self.canvas.focus_set()
         self.canvas.configure(xscrollincrement='20')
+        self.canvas.configure(yscrollincrement='40')
 
 
 root = tk.Tk()
