@@ -8,22 +8,29 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.curr_img_path = "test.jpeg"
-        self.zoom_rate = 0.9
+        self.id = "test"
+        self.page_number = 1
+        self.zoom_rate = 1
         self.img_x = 0
         self.img_y = 0
         self.cards = defaultdict(list)
-        self.page_number = 1
         self.create_widgets()
-        self.bind_keys()
+        #self.bind_keys()
+
+    def get_img_path(self):
+        return "{}{}.jpg".format(self.id, self.page_number)
 
     def create_widgets(self):
-        zoom_frame = Frame(self.master)
-        zoom_out_button = Button(zoom_frame, text="Zoom Out", command=self.zoom_out_image)
-        zoom_in_button = Button(zoom_frame, text="Zoom In", command=self.zoom_in_image)
-        zoom_out_button.grid(row=0, column=0)
-        zoom_in_button.grid(row=0, column=1)
-        zoom_frame.pack()
+        menu_frame = Frame(self.master)
+        zoom_out_button = Button(menu_frame, text="Zoom Out", command=self.zoom_out_image)
+        zoom_in_button = Button(menu_frame, text="Zoom In", command=self.zoom_in_image)
+        page_back_button = Button(menu_frame, text="<<", command=self.page_back)
+        page_fwd_button = Button(menu_frame, text=">>", command=self.page_forward)
+        zoom_out_button.grid(row=0, column=2)
+        zoom_in_button.grid(row=0, column=3)
+        page_back_button.grid(row=0, column=0)
+        page_fwd_button.grid(row=0, column=1)
+        menu_frame.pack()
         self.put_image()
 
     def put_image(self):
@@ -54,7 +61,7 @@ class Application(tk.Frame):
             self.put_image()
 
     def get_raw_image(self):
-        raw_image = Image.open(self.curr_img_path)
+        raw_image = Image.open(self.get_img_path())
 
         w = raw_image.width
         h = raw_image.height
@@ -99,6 +106,17 @@ class Application(tk.Frame):
             self.insert_highlight(0, int(y0 * self.zoom_rate),
                                   self.img_x, int(y1 * self.zoom_rate))
         #print(self.cards)
+
+    def page_forward(self):
+        self.page_number += 1
+        self.canvas.pack_forget()
+        self.put_image()
+
+    def page_back(self):
+        if self.page_number >= 2:
+            self.page_number -= 1
+            self.canvas.pack_forget()
+            self.put_image()
 
 root = tk.Tk()
 app = Application(master=root)
