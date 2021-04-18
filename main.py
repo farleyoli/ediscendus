@@ -6,22 +6,29 @@ from collections import defaultdict
 from tkinter import simpledialog
 
 class Application(tk.Frame):
+    """ Main class.
+    """
     def __init__(self, master=None):
+        """ Initialize main variables which will be used throughout the program.
+        """
         super().__init__(master)
         self.master = master
-        self.id = "test"
-        self.page_number = 1
+        self.id = "test" # ID of the current opened document.
+        self.page_number = 1 # Which page is user reading?
         self.zoom_rate = 1
-        self.img_x = 0
-        self.img_y = 0
-        self.cards = card_manager.CardManager(self)
+        self.img_x = 0  # Horizontal length of image
+        self.img_y = 0  # Vertical length of image
+        self.cards = card_manager.CardManager(self) # Ancillary class to add cards to document.
         self.create_widgets()
-        #self.bind_keys()
 
     def get_img_path(self):
+        """ Returns path to image file.
+        """
         return "{}{}.jpg".format(self.id, self.page_number)
 
     def create_widgets(self):
+        """ Initialize program.
+        """
         menu_frame = Frame(self.master)
         zoom_out_button = Button(menu_frame, text="Zoom Out", command=self.zoom_out_image)
         zoom_in_button = Button(menu_frame, text="Zoom In", command=self.zoom_in_image)
@@ -35,6 +42,9 @@ class Application(tk.Frame):
         self.put_image()
 
     def put_image(self):
+        """ Load image and card highlights into canvas with correct zoom and
+        other configurations.
+        """
         raw_image = self.get_raw_image()
         self.image = ImageTk.PhotoImage(raw_image)
 
@@ -50,18 +60,24 @@ class Application(tk.Frame):
         #screen_height = root.winfo_screenheight()
 
     def zoom_out_image(self):
+        """ Decreases zoom rate by 10%.
+        """
         if self.zoom_rate >= 0.5:
             self.zoom_rate -= 0.1
             self.canvas.pack_forget()
             self.put_image()
 
     def zoom_in_image(self):
+        """ Increases zoom rate by 10%.
+        """
         if self.zoom_rate <= 1.5:
             self.zoom_rate += 0.1
             self.canvas.pack_forget()
             self.put_image()
 
     def get_raw_image(self):
+        """ Gets raw image (before using ImageTk) with correct proportions.
+        """
         raw_image = Image.open(self.get_img_path())
 
         w = raw_image.width
@@ -76,14 +92,20 @@ class Application(tk.Frame):
         return raw_image
 
     def get_img_coordinates(self, event):
+        """ Returns _image_ coordinates from mouse event.
+        """
         x = int(self.canvas.canvasx(event.x) * (1/self.zoom_rate))
         y = int(self.canvas.canvasy(event.y) * (1/self.zoom_rate))
         return (x, y)
 
     def print_img_coordinates(self, event):
+        """ Prints image coordinates from mouse event.
+        """
         print(self.get_img_coordinates(event))
 
     def bind_keys(self):
+        """ Binds keys to allow user commands.
+        """
         self.canvas.bind("<Left>",      lambda event: self.canvas.xview_scroll(-1, "units"))
         self.canvas.bind("<h>",         lambda event: self.canvas.xview_scroll(-1, "units"))
         self.canvas.bind("<Right>",     lambda event: self.canvas.xview_scroll( 1, "units"))
@@ -101,14 +123,21 @@ class Application(tk.Frame):
         self.canvas.focus_set()
 
     def create_question_card(self, y):
+        """ Create a card (with corresponding highlight) with a question
+        prompted from the user.
+        """
         question = simpledialog.askstring("", "Question:")
         self.cards.add_card(self.page_number, y, question)
 
-
     def insert_highlight(self, x0, y0, x1, y1):
+        """ Takes coordinates of a highlight and loads it over image.
+        """
         self.canvas.create_rectangle(x0, y0, x1, y1, fill="black", stipple="gray25")
 
     def render_highlights(self):
+        """ Takes datastructure from card_manager and use it to render
+        highlights correctly in current image.
+        """
         for hl_id in self.cards.pointers[self.page_number]:
             p0, y0, p1, y1, _, _ = self.cards.highlights[hl_id]
             if self.page_number != p0:
@@ -120,11 +149,15 @@ class Application(tk.Frame):
                                   self.img_x, int(y1 * self.zoom_rate))
 
     def page_forward(self):
+        """ Increments page number and rerenders image.
+        """
         self.page_number += 1
         self.canvas.pack_forget()
         self.put_image()
 
     def page_back(self):
+        """ Decrements page number and rerenders image.
+        """
         if self.page_number >= 2:
             self.page_number -= 1
             self.canvas.pack_forget()

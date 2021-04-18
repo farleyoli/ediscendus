@@ -1,13 +1,21 @@
 from collections import defaultdict
 
 class CardManager():
+    """ This class contains code to manage cards to be added to Anki and their
+    corresponding highlights to be rendered to user.
+    """
     def __init__(self, app):
+        """ Initialize main variables.
+        """
         self.app = app
         self.pointers = defaultdict(set) # self.pointers[i] will contain a list of pointers to highlights in page i
         self.highlights = dict()
         self.id = 0
 
     def add_card(self, page_number, y, question = "", comments = ""):
+        """ Takes coordinates, questions and comments for a card and add them
+        to the pointers and highlights data-structures.
+        """
         self.id += 1
         last_page_number, max_y = self.get_last_highlight(page_number)
         if last_page_number == page_number:
@@ -23,6 +31,9 @@ class CardManager():
         self.app.put_image()
 
     def get_last_highlight(self, page_number):
+        """ Get coordinates of last highlighted part of document, so new
+        highlight can continue from there.
+        """
         last_page_number = page_number
         while last_page_number >= 2 and len(self.pointers[last_page_number]) == 0:
             last_page_number -= 1
