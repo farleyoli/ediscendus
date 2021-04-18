@@ -4,13 +4,17 @@ class CardManager():
     """ This class contains code to manage cards to be added to Anki and their
     corresponding highlights to be rendered to user.
     """
-    def __init__(self, app):
+    def __init__(self, app, pointers = None, highlights = None, ID = None):
         """ Initialize main variables.
         """
         self.app = app
-        self.pointers = defaultdict(set) # self.pointers[i] will contain a list of pointers to highlights in page i
-        self.highlights = dict()
-        self.id = 0
+        self.pointers, self.highlights, self.id = pointers, highlights, ID
+        if not pointers:
+            self.pointers = defaultdict(set) # self.pointers[i] will contain a list of pointers to highlights in page i
+        if not highlights:
+            self.highlights = dict()
+        if not ID:
+            self.id = 0
 
     def add_card(self, page_number, y, question = "", comments = ""):
         """ Takes coordinates, questions and comments for a card and add them

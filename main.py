@@ -4,6 +4,7 @@ from tkinter import *
 from PIL import ImageTk, Image, ImageOps
 from collections import defaultdict
 from tkinter import simpledialog
+import pickle
 
 class Application(tk.Frame):
     """ Main class.
@@ -13,12 +14,13 @@ class Application(tk.Frame):
         """
         super().__init__(master)
         self.master = master
-        self.id = "test" # ID of the current opened document.
-        self.page_number = 1 # Which page is user reading?
-        self.zoom_rate = 1
-        self.img_x = 0  # Horizontal length of image
-        self.img_y = 0  # Vertical length of image
-        self.cards = card_manager.CardManager(self) # Ancillary class to add cards to document.
+        self.load_state()
+        #self.id = "test" # ID of the current opened document.
+        #self.page_number = 1 # Which page is user reading?
+        #self.zoom_rate = 1
+        #self.img_x = 0  # Horizontal length of image
+        #self.img_y = 0  # Vertical length of image
+        #self.cards = card_manager.CardManager(self) # Ancillary class to add cards to document.
         self.create_widgets()
 
     def get_img_path(self):
@@ -119,6 +121,7 @@ class Application(tk.Frame):
         self.canvas.bind("<Shift-J>",   lambda event: self.zoom_out_image())
         self.canvas.bind("<Control-Button-1>", lambda event: self.cards.add_card(self.page_number, self.get_img_coordinates(event)[1]))
         self.canvas.bind("<Shift-Button-1>", lambda event: self.create_question_card(self.get_img_coordinates(event)[1]))
+        self.canvas.bind("<Control-s>", lambda event: self.save_state())
         #self.canvas.bind('<Motion>', lambda event: self.print_img_coordinates(event))
         self.canvas.focus_set()
 
@@ -162,6 +165,23 @@ class Application(tk.Frame):
             self.page_number -= 1
             self.canvas.pack_forget()
             self.put_image()
+
+    def save_state(self, path = "test.edi"):
+        """ Save all relevant data from program to a file so that user can open
+        it later.
+        """
+        with open(path, 'wb') as output:
+            program_state = [self.id, self.page_number, self.zoom_rate, self.img_x, self.img_y, self.cards.pointers, self.cards.highlights, self.cards.id]
+            pickle.dump(program_state, output, pickle.HIGHEST_PROTOCOL)
+
+    def load_state(self, path = "test.edi"):
+        """ Load all relevant data from program saved to a file before.
+        """
+        with open(path, 'rb') as inpt:
+            program_state = pickle.load(inpt)
+            self.id, self.page_number, self.zoom_rate, self.img_x, \
+                self.img_y, pointers, highlights, cid = program_state
+            self.cards = card_manager.CardManager(self, pointers, highlights, cid)
 
 root = tk.Tk()
 app = Application(master=root)
