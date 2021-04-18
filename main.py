@@ -14,13 +14,13 @@ class Application(tk.Frame):
         """
         super().__init__(master)
         self.master = master
-        self.load_state()
-        #self.id = "test" # ID of the current opened document.
-        #self.page_number = 1 # Which page is user reading?
-        #self.zoom_rate = 1
-        #self.img_x = 0  # Horizontal length of image
-        #self.img_y = 0  # Vertical length of image
-        #self.cards = card_manager.CardManager(self) # Ancillary class to add cards to document.
+        #self.load_state()
+        self.id = "test" # ID of the current opened document.
+        self.page_number = 1 # Which page is user reading?
+        self.zoom_rate = 1
+        self.img_x = 0  # Horizontal length of image
+        self.img_y = 0  # Vertical length of image
+        self.cards = card_manager.CardManager(self) # Ancillary class to add cards to document.
         self.create_widgets()
 
     def get_img_path(self):
@@ -36,10 +36,14 @@ class Application(tk.Frame):
         zoom_in_button = Button(menu_frame, text="Zoom In", command=self.zoom_in_image)
         page_back_button = Button(menu_frame, text="<<", command=self.page_back)
         page_fwd_button = Button(menu_frame, text=">>", command=self.page_forward)
+        save_button = Button(menu_frame, text="Save", command=self.save_state)
+        load_button = Button(menu_frame, text="Load", command=self.load_state)
         zoom_out_button.grid(row=0, column=2)
         zoom_in_button.grid(row=0, column=3)
         page_back_button.grid(row=0, column=0)
         page_fwd_button.grid(row=0, column=1)
+        save_button.grid(row=0, column=4)
+        load_button.grid(row=0, column=5)
         menu_frame.pack()
         self.put_image()
 
@@ -182,6 +186,9 @@ class Application(tk.Frame):
             self.id, self.page_number, self.zoom_rate, self.img_x, \
                 self.img_y, pointers, highlights, cid = program_state
             self.cards = card_manager.CardManager(self, pointers, highlights, cid)
+
+        self.canvas.pack_forget()
+        self.put_image()
 
 root = tk.Tk()
 app = Application(master=root)
