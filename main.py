@@ -4,6 +4,7 @@ from tkinter import *
 from PIL import ImageTk, Image, ImageOps
 from collections import defaultdict
 from tkinter import simpledialog
+from tkinter import filedialog
 import pickle
 
 class Application(tk.Frame):
@@ -37,7 +38,7 @@ class Application(tk.Frame):
         page_back_button = Button(menu_frame, text="<<", command=self.page_back)
         page_fwd_button = Button(menu_frame, text=">>", command=self.page_forward)
         save_button = Button(menu_frame, text="Save", command=self.save_state)
-        load_button = Button(menu_frame, text="Load", command=self.load_state)
+        load_button = Button(menu_frame, text="Load", command=self.load_file)
         zoom_out_button.grid(row=0, column=2)
         zoom_in_button.grid(row=0, column=3)
         page_back_button.grid(row=0, column=0)
@@ -174,9 +175,13 @@ class Application(tk.Frame):
         """ Save all relevant data from program to a file so that user can open
         it later.
         """
-        with open(path, 'wb') as output:
-            program_state = [self.id, self.page_number, self.zoom_rate, self.img_x, self.img_y, self.cards.pointers, self.cards.highlights, self.cards.id]
-            pickle.dump(program_state, output, pickle.HIGHEST_PROTOCOL)
+        output = filedialog.asksaveasfile(mode='wb', defaultextension="edi")
+        if output is None:
+            return
+
+        program_state = [self.id, self.page_number, self.zoom_rate, self.img_x, self.img_y, self.cards.pointers, self.cards.highlights, self.cards.id]
+        pickle.dump(program_state, output, pickle.HIGHEST_PROTOCOL)
+        output.close()
 
     def load_state(self, path = "test.edi"):
         """ Load all relevant data from program saved to a file before.
@@ -189,6 +194,12 @@ class Application(tk.Frame):
 
         self.canvas.pack_forget()
         self.put_image()
+
+    def load_file(self, path = "test.edi"):
+        """ Prompts user for name of file to load.
+        """
+        path = filedialog.askopenfilename(parent=self.master)
+        self.load_state(path = path)
 
 root = tk.Tk()
 app = Application(master=root)
