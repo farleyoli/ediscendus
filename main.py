@@ -6,6 +6,7 @@ from collections import defaultdict
 from tkinter import simpledialog
 from tkinter import filedialog
 import pickle
+import pdf2image
 
 class Application(tk.Frame):
     """ Main class.
@@ -16,12 +17,13 @@ class Application(tk.Frame):
         super().__init__(master)
         self.master = master
         #self.load_state()
-        self.id = "test" # ID of the current opened document.
+        self.id = "default" # ID of the current opened document.
         self.page_number = 1 # Which page is user reading?
         self.zoom_rate = 1
         self.img_x = 0  # Horizontal length of image
         self.img_y = 0  # Vertical length of image
         self.cards = card_manager.CardManager(self) # Ancillary class to add cards to document.
+        self.pdf_pages = pdf2image.convert_from_path('pdfs/{}.pdf'.format(self.id))
         self.create_widgets()
 
     def get_img_path(self):
@@ -48,11 +50,12 @@ class Application(tk.Frame):
         menu_frame.pack()
         self.put_image()
 
-    def put_image(self):
+    def put_image(self, raw_image = None):
         """ Load image and card highlights into canvas with correct zoom and
         other configurations.
         """
-        raw_image = self.get_raw_image()
+        if raw_image is None:
+            raw_image = self.get_raw_image()
         self.image = ImageTk.PhotoImage(raw_image)
 
         self.canvas = Canvas(self.master, bg="blue")
@@ -85,7 +88,8 @@ class Application(tk.Frame):
     def get_raw_image(self):
         """ Gets raw image (before using ImageTk) with correct proportions.
         """
-        raw_image = Image.open(self.get_img_path())
+        #raw_image = Image.open(self.get_img_path())
+        raw_image = self.pdf_pages[self.page_number-1]
 
         w = raw_image.width
         h = raw_image.height
