@@ -1,0 +1,1 @@
+["ediscendus_model", ["question", "page_number", "coordinate"], "Optional CSS with default to builtin css", [{ "Name": "ediscendus_card", "Front": "Front html  : {{question}}", "Back": "Back html  {{page_number}}"}]]
