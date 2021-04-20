@@ -11,6 +11,14 @@ import pdf2image
 class Application(tk.Frame):
     """ Main class.
     """
+
+    def open_pdf(self):
+        """ Let user select new pdf to edit.
+        """
+        file_name = filedialog.askopenfilename(parent=self.master, extension=".pdf")
+        self.pdf_pages = pdf2image.convert_from_path(file_name, 100)
+
+
     def __init__(self, master=None):
         """ Initialize main variables which will be used throughout the program.
         """
@@ -23,7 +31,7 @@ class Application(tk.Frame):
         self.img_x = 0  # Horizontal length of image
         self.img_y = 0  # Vertical length of image
         self.cards = card_manager.CardManager(self) # Ancillary class to add cards to document.
-        self.pdf_pages = pdf2image.convert_from_path('pdfs/{}.pdf'.format(self.id))
+        self.pdf_pages = pdf2image.convert_from_path('pdfs/{}.pdf'.format(self.id), 100)
         self.create_widgets()
 
     def get_img_path(self):
@@ -69,21 +77,23 @@ class Application(tk.Frame):
         #screen_width = root.winfo_screenwidth()
         #screen_height = root.winfo_screenheight()
 
+    def reload_canvas(self):
+        self.canvas.pack_forget()
+        self.put_image()
+
     def zoom_out_image(self):
         """ Decreases zoom rate by 10%.
         """
         if self.zoom_rate >= 0.5:
             self.zoom_rate -= 0.1
-            self.canvas.pack_forget()
-            self.put_image()
+            self.reload_canvas()
 
     def zoom_in_image(self):
         """ Increases zoom rate by 10%.
         """
         if self.zoom_rate <= 1.5:
             self.zoom_rate += 0.1
-            self.canvas.pack_forget()
-            self.put_image()
+            self.reload_canvas()
 
     def get_raw_image(self):
         """ Gets raw image (before using ImageTk) with correct proportions.
@@ -164,16 +174,14 @@ class Application(tk.Frame):
         """ Increments page number and rerenders image.
         """
         self.page_number += 1
-        self.canvas.pack_forget()
-        self.put_image()
+        self.reload_canvas()
 
     def page_back(self):
         """ Decrements page number and rerenders image.
         """
         if self.page_number >= 2:
             self.page_number -= 1
-            self.canvas.pack_forget()
-            self.put_image()
+            self.reload_canvas()
 
     def save_state(self, path = "test.edi"):
         """ Save all relevant data from program to a file so that user can open
@@ -196,8 +204,7 @@ class Application(tk.Frame):
                 self.img_y, pointers, highlights, cid = program_state
             self.cards = card_manager.CardManager(self, pointers, highlights, cid)
 
-        self.canvas.pack_forget()
-        self.put_image()
+        slef.reload_canvas()
 
     def load_file(self, path = "test.edi"):
         """ Prompts user for name of file to load.
