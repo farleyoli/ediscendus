@@ -29,15 +29,12 @@ class Anki:
             raise Exception(response['error'])
         return response['result']
 
-    def create_deck(self, deck_name, deck_config_path):
-        """ Create new deck on Anki, with given fields and CSS/HTML configuration.
+    def create_deck(self, deck_name):
+        """ Create new deck on Anki.
         """
         if deck_name in self.deck_names:
             return "The deck with this name already exists."
-        with open(deck_config_path, "r") as f:
-            deck_data = json.load(f)
-        #TODO
-        return None
+        return self.invoke('createDeck', deck = deck_name)
 
 
 
@@ -50,4 +47,3 @@ class Anki:
             model_data = json.load(f)
         return self.invoke('createModel', modelName = model_data[0], inOrderFields = model_data[1],\
                css = model_data[2], cardTemplates = model_data[3])
-
