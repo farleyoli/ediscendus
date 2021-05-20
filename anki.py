@@ -2,12 +2,16 @@ import json
 import urllib.request
 
 class Anki:
-    def __init__(self):
+    def __init__(self, deck_name = "ediscendus", model_name = "ediscendus_model"):
         """ Initializes Anki object, savind the name of the models and the decks available
         on the current session of Anki, so it doesn't have to be retrieved all the time.
         """
         self.model_names = self.invoke('modelNames')
         self.deck_names = self.invoke('deckNames')
+        if model_name not in self.model_names:
+            self.create_model(model_name)
+        if deck_name not in self.deck_names:
+            self.create_deck(deck_name)
 
     def request(self, action, **params):
         """ Return object used to request something from Anki.
@@ -38,7 +42,7 @@ class Anki:
 
 
 
-    def create_model(self, model_name, model_file_path):
+    def create_model(self, model_name, model_file_path = "data/model.json"):
         """ Create new model on Anki, with fields/configuration retrieved from file mode_file_path.
         """
         if model_name in self.model_names:
@@ -62,4 +66,5 @@ class Anki:
         }
         return self.invoke('addNote', note = note)
 anki = Anki()
-print(anki.add_card('ediscendus_model', 'Default', 'test', 'test', 'test'))
+#print(anki.add_card('ediscendus_model', 'Default', 'test', 'test', 'test'))
+print(anki.deck_names)
