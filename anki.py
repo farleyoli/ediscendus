@@ -47,3 +47,19 @@ class Anki:
             model_data = json.load(f)
         return self.invoke('createModel', modelName = model_data[0], inOrderFields = model_data[1],\
                css = model_data[2], cardTemplates = model_data[3])
+
+    def add_card(self, model_name, deck_name, question, page_number, coordinates):
+        if model_name not in self.model_names or deck_name not in self.deck_names:
+            return "Error"
+        note = {
+            "deckName": deck_name,
+            "modelName": model_name,
+            "fields": {
+                "question": question,
+                "page_number": page_number,
+                "coordinate": coordinates
+            }
+        }
+        return self.invoke('addNote', note = note)
+anki = Anki()
+print(anki.add_card('ediscendus_model', 'Default', 'test', 'test', 'test'))
