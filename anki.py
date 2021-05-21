@@ -52,7 +52,7 @@ class Anki:
         return self.invoke('createModel', modelName = model_data[0], inOrderFields = model_data[1],\
                css = model_data[2], cardTemplates = model_data[3])
 
-    def add_card(self, model_name, deck_name, question, page_number, coordinates):
+    def add_card(self, model_name, deck_name, question, page_number, coordinates, book_id, extra = ""):
         if model_name not in self.model_names or deck_name not in self.deck_names:
             return "Error"
         note = {
@@ -61,10 +61,12 @@ class Anki:
             "fields": {
                 "question": question,
                 "page_number": page_number,
-                "coordinate": coordinates
+                "coordinate": coordinates,
+                "book_id": book_id,
+                "extra": extra
             }
         }
         return self.invoke('addNote', note = note)
-anki = Anki()
+#anki = Anki()
 #print(anki.add_card('ediscendus_model', 'Default', 'test', 'test', 'test'))
-print(anki.deck_names)
+#print(anki.deck_names)

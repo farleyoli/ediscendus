@@ -1,12 +1,11 @@
 import tkinter as tk
-import card_manager
+import card_manager, anki, image_manager
 from tkinter import *
 from PIL import ImageTk, Image, ImageOps
 from collections import defaultdict
 from tkinter import simpledialog
 from tkinter import filedialog
-import pickle
-import pdf2image
+import pickle, pdf2image, string, random
 
 class Application(tk.Frame):
     """ Main class.
@@ -27,11 +26,14 @@ class Application(tk.Frame):
         #self.load_state()
         self.id = "default" # ID of the current opened document.
         self.page_number = 1 # Which page is user reading?
+        self.last_visited_page = 1
         self.zoom_rate = 1
         self.img_x = 0  # Horizontal length of image
         self.img_y = 0  # Vertical length of image
         self.cards = card_manager.CardManager(self) # Ancillary class to add cards to document.
         self.pdf_pages = pdf2image.convert_from_path('pdfs/{}.pdf'.format(self.id), 100)
+        self.anki = anki.Anki()
+        self.image_manager = image_manager.ImageManager(self)
         self.create_widgets()
 
     def get_img_path(self):
@@ -174,6 +176,7 @@ class Application(tk.Frame):
         """ Increments page number and rerenders image.
         """
         self.page_number += 1
+        self.last_visited_page = max(self.page_number, self.last_visited_page)
         self.reload_canvas()
 
     def page_back(self):
@@ -191,7 +194,7 @@ class Application(tk.Frame):
         if output is None:
             return
 
-        program_state = [self.id, self.page_number, self.zoom_rate, self.img_x, self.img_y, self.cards.pointers, self.cards.highlights, self.cards.id]
+        program_state = [self.id, self.page_number, self.zoom_rate, self.img_x, self.img_y, self.cards.pointers, self.cards.highlights, self.cards.id, self.last_visited_page]
         pickle.dump(program_state, output, pickle.HIGHEST_PROTOCOL)
         output.close()
 
@@ -201,10 +204,11 @@ class Application(tk.Frame):
         with open(path, 'rb') as inpt:
             program_state = pickle.load(inpt)
             self.id, self.page_number, self.zoom_rate, self.img_x, \
-                self.img_y, pointers, highlights, cid = program_state
+                self.img_y, pointers, highlights, cid, self.last_visited_page = program_state
             self.cards = card_manager.CardManager(self, pointers, highlights, cid)
 
-        slef.reload_canvas()
+        self.canvas.pack_forget()
+        self.put_image()
 
     def load_file(self, path = "test.edi"):
         """ Prompts user for name of file to load.
