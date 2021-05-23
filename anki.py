@@ -67,9 +67,9 @@ class Anki:
         }
         return self.invoke('addNote', note = note)
 
-    def send_multimedia(self, filename):
-        path = os.path.abspath("temp/{}".format(filename))
+    def send_multimedia(self, filename, relative_path):
+        path = os.path.abspath(relative_path)
         return self.invoke('storeMediaFile', filename=filename, path=path)
 #anki = Anki()
-#print(anki.send_multimedia('ediscendus_test.jpg'))
+#print(anki.send_multimedia('temp/ediscendus_test.jpg'))
 #print(anki.add_card('ediscendus_model', 'Default', 'test', 'test', 'test'))

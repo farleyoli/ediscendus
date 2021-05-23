@@ -143,6 +143,7 @@ class Application(tk.Frame):
         self.canvas.bind("<Control-Button-1>", lambda event: self.cards.add_card(self.page_number, self.get_img_coordinates(event)[1]))
         self.canvas.bind("<Shift-Button-1>", lambda event: self.create_question_card(self.get_img_coordinates(event)[1]))
         self.canvas.bind("<Control-s>", lambda event: self.save_state())
+        self.canvas.bind("<q>", lambda event: self.image_manager.sync_images())
         #self.canvas.bind('<Motion>', lambda event: self.print_img_coordinates(event))
         self.canvas.focus_set()
 
