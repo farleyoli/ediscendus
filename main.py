@@ -11,11 +11,10 @@ class Application(tk.Frame):
     """ Main class.
     """
 
-    def open_pdf(self):
+    def open_pdf(self, page_number):
         """ Let user select new pdf to edit.
         """
-        file_name = filedialog.askopenfilename(parent=self.master, extension=".pdf")
-        self.pdf_pages = pdf2image.convert_from_path(file_name, 100)
+        self.pdf_pages = pdf2image.convert_from_path('pdfs/{}.pdf'.format(self.id), 100, first_page=page_number, last_page=page_number)
 
 
     def __init__(self, master=None):
@@ -31,7 +30,8 @@ class Application(tk.Frame):
         self.img_x = 0  # Horizontal length of image
         self.img_y = 0  # Vertical length of image
         self.cards = card_manager.CardManager(self) # Ancillary class to add cards to document.
-        self.pdf_pages = pdf2image.convert_from_path('pdfs/{}.pdf'.format(self.id), 100)
+        #self.pdf_pages = pdf2image.convert_from_path('pdfs/{}.pdf'.format(self.id), 100)
+        self.open_pdf(self.page_number)
         self.anki = anki.Anki()
         self.image_manager = image_manager.ImageManager(self)
         self.create_widgets()
@@ -101,7 +101,8 @@ class Application(tk.Frame):
         """ Gets raw image (before using ImageTk) with correct proportions.
         """
         #raw_image = Image.open(self.get_img_path())
-        raw_image = self.pdf_pages[self.page_number-1]
+        self.open_pdf(self.page_number)
+        raw_image = self.pdf_pages[0]
 
         w = raw_image.width
         h = raw_image.height

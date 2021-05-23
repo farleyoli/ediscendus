@@ -9,7 +9,9 @@ class ImageManager:
 
     def get_last_loaded(self, upperlimit = 10000):
         for i in range(1, upperlimit):
-            print("ediscendus_{}_{}.jpg".format(self.app.id, i))
             if "ediscendus_{}_{}.jpg".format(self.app.id, i) not in self.added_cards:
                 return i-1
         return upperlimit
+
+    def add_image(self, page_number):
+        pass
