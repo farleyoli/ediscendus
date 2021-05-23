@@ -1,5 +1,4 @@
-import json
-import urllib.request
+import json, urllib.request, os
 
 class Anki:
     def __init__(self, deck_name = "ediscendus", model_name = "ediscendus_model"):
@@ -67,6 +66,10 @@ class Anki:
             }
         }
         return self.invoke('addNote', note = note)
+
+    def send_multimedia(self, filename):
+        path = os.path.abspath("temp/{}".format(filename))
+        return self.invoke('storeMediaFile', filename=filename, path=path)
 #anki = Anki()
+#print(anki.send_multimedia('ediscendus_test.jpg'))
 #print(anki.add_card('ediscendus_model', 'Default', 'test', 'test', 'test'))
-#print(anki.deck_names)

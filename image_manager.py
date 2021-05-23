@@ -1,3 +1,5 @@
+from PIL import ImageTk, Image, ImageOps
+
 class ImageManager:
     # naming convention: ediscendus_{{book_name}}_{{page_number}}.jpg
     def __init__(self, app):
@@ -13,5 +15,7 @@ class ImageManager:
                 return i-1
         return upperlimit
 
-    def add_image(self, page_number):
-        pass
+    def send_image_to_anki(self, page_number):
+        raw_image = self.app.open_image(page_no=page_number)
+        raw_image.save("temp/ediscendus_{}_{}.jpg".format(self.app.id, page_number))
+        #self.app.anki. TODO
