@@ -48,3 +48,16 @@ class CardManager():
         max_y = max(t) if len(t) > 0 else 0
 
         return last_page_number, max_y
+
+    def add_highlight_to_anki(self, idx):
+        if idx < 0 or idx >= len(self.highlights):
+            return None
+        #self.highlights[self.id] = [last_page_number, max_y+1, page_number, y, question, comments]
+        question = self.highlights[idx][4]
+        page_number = str(self.highlights[idx][2])
+        x, y = 100*self.highlights[idx][1]/self.app.img_y, 100*self.highlights[idx][3]/self.app.img_y
+        if self.highlights[idx][0] < self.highlights[idx][2]:
+            x = 0
+        coordinates = "{}#{}".format(x, y)
+        card_id = str(self.app.id) + "_" + str(idx)
+        self.app.anki.add_card(card_id, question = question, page_number = page_number, coordinates = coordinates)
