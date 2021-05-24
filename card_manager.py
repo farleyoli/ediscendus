@@ -4,17 +4,19 @@ class CardManager():
     """ This class contains code to manage cards to be added to Anki and their
     corresponding highlights to be rendered to user.
     """
-    def __init__(self, app, pointers = None, highlights = None, ID = None):
+    def __init__(self, app, pointers = None, highlights = None, ID = None, id_added_cards = None):
         """ Initialize main variables.
         """
         self.app = app
-        self.pointers, self.highlights, self.id = pointers, highlights, ID
+        self.pointers, self.highlights, self.id, self.id_added_cards = pointers, highlights, ID, id_added_cards
         if not pointers:
             self.pointers = defaultdict(set) # self.pointers[i] will contain a list of pointers to highlights in page i
         if not highlights:
             self.highlights = dict()
         if not ID:
             self.id = 0
+        if not id_added_cards:
+            self.id_added_cards = []
 
     def add_card(self, page_number, y, question = "", comments = ""):
         """ Takes coordinates, questions and comments for a card and add them
@@ -50,14 +52,15 @@ class CardManager():
         return last_page_number, max_y
 
     def add_highlight_to_anki(self, idx):
-        if idx < 0 or idx >= len(self.highlights):
+        if idx < 0 or idx >= len(self.highlights) or idx in self.id_added_cards:
             return None
         #self.highlights[self.id] = [last_page_number, max_y+1, page_number, y, question, comments]
         question = self.highlights[idx][4]
         page_number = str(self.highlights[idx][2])
         x, y = 100*self.highlights[idx][1]/self.app.img_y, 100*self.highlights[idx][3]/self.app.img_y
-        if self.highlights[idx][0] < self.highlights[idx][2]:
-            x = 0
-        coordinates = "{}#{}".format(x, y)
+        xpage, ypage = str(self.highlights[idx][0]), str(self.highlights[idx][2])
+        coordinates = "{}@{}#{}@{}".format(xpage, x, ypage, y)
         card_id = str(self.app.id) + "_" + str(idx)
         self.app.anki.add_card(card_id, question = question, page_number = page_number, coordinates = coordinates)
+        self.id_added_cards.append(idx)
+        print(self.id_added_cards)

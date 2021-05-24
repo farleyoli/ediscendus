@@ -16,7 +16,7 @@ class Application(tk.Frame):
         """
         if page_no is None:
             page_no = self.page_number
-        return pdf2image.convert_from_path('pdfs/{}.pdf'.format(self.id), 100, first_page=page_no, last_page=page_no, size = (width, None))[0]
+        return pdf2image.convert_from_path(self.filename, 100, first_page=page_no, last_page=page_no, size = (width, None))[0]
 
 
     def __init__(self, master=None):
@@ -25,7 +25,9 @@ class Application(tk.Frame):
         super().__init__(master)
         self.master = master
         #self.load_state()
-        self.id = "default" # ID of the current opened document.
+        self.filename = filedialog.askopenfilename()
+        #self.id = "default" # ID of the current opened document.
+        self.id = self.filename.split('/')[-1][:-4]
         self.page_number = 1 # Which page is user reading?
         self.last_visited_page = 1
         self.zoom_rate = 1
@@ -196,7 +198,7 @@ class Application(tk.Frame):
         if output is None:
             return
 
-        program_state = [self.id, self.page_number, self.zoom_rate, self.img_x, self.img_y, self.cards.pointers, self.cards.highlights, self.cards.id, self.last_visited_page]
+        program_state = [self.id, self.page_number, self.zoom_rate, self.img_x, self.img_y, self.cards.pointers, self.cards.highlights, self.cards.id, self.last_visited_page, self.cards.id_added_cards]
         pickle.dump(program_state, output, pickle.HIGHEST_PROTOCOL)
         output.close()
 
@@ -206,8 +208,8 @@ class Application(tk.Frame):
         with open(path, 'rb') as inpt:
             program_state = pickle.load(inpt)
             self.id, self.page_number, self.zoom_rate, self.img_x, \
-                self.img_y, pointers, highlights, cid, self.last_visited_page = program_state
-            self.cards = card_manager.CardManager(self, pointers, highlights, cid)
+                self.img_y, pointers, highlights, cid, self.last_visited_page, id_added_cards = program_state
+            self.cards = card_manager.CardManager(self, pointers, highlights, cid, id_added_cards)
 
         self.canvas.pack_forget()
         self.put_image()
