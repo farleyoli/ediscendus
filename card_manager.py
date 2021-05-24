@@ -18,7 +18,7 @@ class CardManager():
         if not id_added_cards:
             self.id_added_cards = []
 
-    def add_card(self, page_number, y, question = "", comments = ""):
+    def add_highlight(self, page_number, y, question = "", comments = "", height = 1000):
         """ Takes coordinates, questions and comments for a card and add them
         to the pointers and highlights data-structures.
         """
@@ -27,11 +27,11 @@ class CardManager():
         if last_page_number == page_number:
             if max_y < y:
                 self.pointers[page_number].add(self.id)
-                self.highlights[self.id] = [last_page_number, max_y+1, page_number, y, question, comments]
+                self.highlights[self.id] = [last_page_number, max_y+1, page_number, y, question, comments, height]
         else:
             for pn in range(last_page_number, page_number+1):
                 self.pointers[pn].add(self.id)
-            self.highlights[self.id] = [last_page_number, max_y+1, page_number, y, question, comments]
+            self.highlights[self.id] = [last_page_number, max_y+1, page_number, y, question, comments, height]
 
         self.app.canvas.pack_forget()
         self.app.put_image()
@@ -43,24 +43,27 @@ class CardManager():
         last_page_number = page_number
         while last_page_number >= 2 and len(self.pointers[last_page_number]) == 0:
             last_page_number -= 1
-
         #t = [y1 for _, _, _, y1 in self.highlights[hln] for hln in self.pointers[last_page_number]]
         t = [self.highlights[hln] for hln in self.pointers[last_page_number]]
-        t = [y1 for _, _, _, y1, _, _ in t]
+        t = [y1 for _, _, _, y1, _, _, _ in t]
         max_y = max(t) if len(t) > 0 else 0
-
         return last_page_number, max_y
 
     def add_highlight_to_anki(self, idx):
-        if idx < 0 or idx >= len(self.highlights) or idx in self.id_added_cards:
+        if idx not in self.highlights or idx in self.id_added_cards:
             return None
-        #self.highlights[self.id] = [last_page_number, max_y+1, page_number, y, question, comments]
+        if len(self.highlights[idx][-3]) == 0:
+            return None
+        #self.highlights[self.id] = [last_page_number, max_y+1, page_number, y, question, comments, height]
         question = self.highlights[idx][4]
-        page_number = str(self.highlights[idx][2])
-        x, y = 100*self.highlights[idx][1]/self.app.img_y, 100*self.highlights[idx][3]/self.app.img_y
+        page_number = str(self.highlights[idx][0])
+        x, y = 100*self.highlights[idx][1]/self.highlights[idx][-1], 100*self.highlights[idx][3]/self.highlights[idx][-1]
         xpage, ypage = str(self.highlights[idx][0]), str(self.highlights[idx][2])
         coordinates = "{}@{}#{}@{}".format(xpage, x, ypage, y)
         card_id = str(self.app.id) + "_" + str(idx)
-        self.app.anki.add_card(card_id, question = question, page_number = page_number, coordinates = coordinates)
+        self.app.anki.add_card(card_id, question=question, page_number=page_number, coordinates=coordinates)
         self.id_added_cards.append(idx)
-        print(self.id_added_cards)
+
+    def sync_highlights(self):
+        for key in self.highlights:
+            self.add_highlight_to_anki(key)

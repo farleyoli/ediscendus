@@ -53,12 +53,14 @@ class Application(tk.Frame):
         page_fwd_button = Button(menu_frame, text=">>", command=self.page_forward)
         save_button = Button(menu_frame, text="Save", command=self.save_state)
         load_button = Button(menu_frame, text="Load", command=self.load_file)
+        sync_button = Button(menu_frame, text="Sync", command=lambda: self.anki.sync(self))
         zoom_out_button.grid(row=0, column=2)
         zoom_in_button.grid(row=0, column=3)
         page_back_button.grid(row=0, column=0)
         page_fwd_button.grid(row=0, column=1)
         save_button.grid(row=0, column=4)
         load_button.grid(row=0, column=5)
+        sync_button.grid(row=0, column=6)
         menu_frame.pack()
         self.put_image()
 
@@ -123,6 +125,12 @@ class Application(tk.Frame):
         y = int(self.canvas.canvasy(event.y) * (1/self.zoom_rate))
         return (x, y)
 
+    def get_height(self):
+        """ Returns _image_ coordinates from mouse event.
+        """
+        raw_image = self.open_image()
+        return raw_image.height
+
     def print_img_coordinates(self, event):
         """ Prints image coordinates from mouse event.
         """
@@ -142,11 +150,14 @@ class Application(tk.Frame):
         self.canvas.bind("<1>",         lambda event: self.canvas.focus_set())
         self.canvas.bind("<Shift-K>",   lambda event: self.zoom_in_image())
         self.canvas.bind("<Shift-J>",   lambda event: self.zoom_out_image())
-        self.canvas.bind("<Control-Button-1>", lambda event: self.cards.add_card(self.page_number, self.get_img_coordinates(event)[1]))
+        self.canvas.bind("<Control-Button-1>", lambda event: self.cards.add_highlight(
+            self.page_number,
+            self.get_img_coordinates(event)[1]
+        ))
         self.canvas.bind("<Shift-Button-1>", lambda event: self.create_question_card(self.get_img_coordinates(event)[1]))
         self.canvas.bind("<Control-s>", lambda event: self.save_state())
         #self.canvas.bind("<q>", lambda event: self.image_manager.sync_images())
-        #self.canvas.bind("<q>", lambda event: self.cards.add_highlight_to_anki(1))
+        self.canvas.bind("<q>", lambda event: self.anki.sync(self))
         #self.canvas.bind('<Motion>', lambda event: self.print_img_coordinates(event))
         self.canvas.focus_set()
 
@@ -155,7 +166,9 @@ class Application(tk.Frame):
         prompted from the user.
         """
         question = simpledialog.askstring("", "Question:")
-        self.cards.add_card(self.page_number, y, question)
+        if len(question) == 0:
+            question = "Read the following and understand it:"
+        self.cards.add_highlight(self.page_number, y, question, height=self.get_height())
 
     def insert_highlight(self, x0, y0, x1, y1):
         """ Takes coordinates of a highlight and loads it over image.
@@ -167,7 +180,7 @@ class Application(tk.Frame):
         highlights correctly in current image.
         """
         for hl_id in self.cards.pointers[self.page_number]:
-            p0, y0, p1, y1, _, _ = self.cards.highlights[hl_id]
+            p0, y0, p1, y1, _, _, _ = self.cards.highlights[hl_id]
             if self.page_number != p0:
                 y0 = 0
             if self.page_number != p1:

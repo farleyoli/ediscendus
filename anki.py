@@ -39,8 +39,6 @@ class Anki:
             return "The deck with this name already exists."
         return self.invoke('createDeck', deck = deck_name)
 
-
-
     def create_model(self, model_name, model_file_path = "data/model.json"):
         """ Create new model on Anki, with fields/configuration retrieved from file mode_file_path.
         """
@@ -51,7 +49,7 @@ class Anki:
         return self.invoke('createModel', modelName = model_data[0], inOrderFields = model_data[1],\
                css = model_data[2], cardTemplates = model_data[3])
 
-    def add_card(self, card_id, question='Default question', page_number=1, coordinates='0#100', book_id='default', model_name='ediscendus_model', deck_name='Default', extra=''):
+    def add_card(self, card_id, question='Default question', page_number=1, coordinates='0@0#0@100', book_id='default', model_name='ediscendus_model', deck_name='Default', extra=''):
         if model_name not in self.model_names or deck_name not in self.deck_names:
             return "Error"
         note = {
@@ -71,6 +69,11 @@ class Anki:
     def send_multimedia(self, filename, relative_path):
         path = os.path.abspath(relative_path)
         return self.invoke('storeMediaFile', filename=filename, path=path)
+
+    def sync(self, app):
+        app.cards.sync_highlights()
+        app.image_manager.sync_images()
+
 #anki = Anki()
 #print(anki.send_multimedia('temp/ediscendus_test.jpg'))
 #print(anki.add_card('ediscendus_model', 'Default', 'test', 'test', 'test'))
