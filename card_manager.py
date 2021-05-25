@@ -4,11 +4,11 @@ class CardManager():
     """ This class contains code to manage cards to be added to Anki and their
     corresponding highlights to be rendered to user.
     """
-    def __init__(self, app, pointers = None, highlights = None, ID = None, id_added_cards = None):
+    def __init__(self, app, pointers = None, highlights = None, ID = None, id_added_cards = None, deck_name=None):
         """ Initialize main variables.
         """
         self.app = app
-        self.pointers, self.highlights, self.id, self.id_added_cards = pointers, highlights, ID, id_added_cards
+        self.pointers, self.highlights, self.id, self.id_added_cards, self.deck_name = pointers, highlights, ID, id_added_cards, deck_name
         if not pointers:
             self.pointers = defaultdict(set) # self.pointers[i] will contain a list of pointers to highlights in page i
         if not highlights:
@@ -17,6 +17,8 @@ class CardManager():
             self.id = 0
         if not id_added_cards:
             self.id_added_cards = []
+        if not deck_name:
+            self.deck_name = 'ediscendus'
 
     def add_highlight(self, page_number, y, question = "", comments = "", height = 1000):
         """ Takes coordinates, questions and comments for a card and add them
@@ -61,7 +63,7 @@ class CardManager():
         xpage, ypage = str(self.highlights[idx][0]), str(self.highlights[idx][2])
         coordinates = "{}@{}#{}@{}".format(xpage, x, ypage, y)
         card_id = str(self.app.id) + "_" + str(idx)
-        self.app.anki.add_card(card_id, book_id=self.app.id, question=question, page_number=page_number, coordinates=coordinates)
+        self.app.anki.add_card(card_id, book_id=self.app.id, question=question, page_number=page_number, coordinates=coordinates, deck_name=self.deck_name)
         self.id_added_cards.append(idx)
 
     def sync_highlights(self):
