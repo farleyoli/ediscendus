@@ -7,6 +7,15 @@ from tkinter import simpledialog
 from tkinter import filedialog
 import pickle, pdf2image, string, random
 
+# TODO:
+# Fix position when rerendering image
+# Implement deletion of highlights (in principle no need to delete cards?) 
+# Impement adding multiple cards for same highlight
+# Different colours for different kinds of highlights
+# Fix messy code (particularly too many unneeded member variables)
+# Document functions better
+# Better shortcuts (here and on Anki)
+
 class Application(tk.Frame):
     """ Main class.
     """
