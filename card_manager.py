@@ -61,7 +61,7 @@ class CardManager():
         xpage, ypage = str(self.highlights[idx][0]), str(self.highlights[idx][2])
         coordinates = "{}@{}#{}@{}".format(xpage, x, ypage, y)
         card_id = str(self.app.id) + "_" + str(idx)
-        self.app.anki.add_card(card_id, question=question, page_number=page_number, coordinates=coordinates)
+        self.app.anki.add_card(card_id, book_id=self.app.id, question=question, page_number=page_number, coordinates=coordinates)
         self.id_added_cards.append(idx)
 
     def sync_highlights(self):
